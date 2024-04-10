@@ -4,6 +4,7 @@ import time
 import ast
 import datetime
 import logging
+import os
 
 
 logger = logging.getLogger(__name__)
@@ -13,12 +14,11 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
-TELEGRAM_BOT_TOKEN = "7199414118:AAHzMvI_mQRBQTUvXy7mrXpWm-om4U0ZvYY"
-TELEGRAM_CHAT_ID = "165009969"
-ETHERSCAN_API_KEY = "M6J9NRQ29I9U9D3CP6I5CTKV757YAY65PQ"
-QDT_POOL_ADDRESS = "0xfb3B5A0E03Ae12C41492D70BD210E65D25CC01DC"
-CHECK_EVERY_SECONDS = 5
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY")
+QDT_POOL_ADDRESS = os.environ.get("QDT_POOL_ADDRESS")
+CHECK_EVERY_SECONDS = int(os.environ.get("CHECK_EVERY_SECONDS", 5))
 
 
 def get_with_retry(url, max_retries=3, delay=1):
@@ -55,10 +55,10 @@ def check_new_transactions(data_df, init_transaction):
         value1 = ast.literal_eval(new_df.iloc[1]["value"])/1e18
         utc_datetime = datetime.datetime.fromtimestamp(int(new_df.iloc[0]["timeStamp"]), datetime.timezone.utc)
         utc_date_string = utc_datetime.strftime("%b-%d-%Y %I:%M:%S %p +UTC")
-        message = "Nuova transazione"
+        message = "*Nuova transazione*"
         message += f"\nHash: {data_df.iloc[0]['hash']}"
         message += f"\nDate: {utc_date_string}"
-        message += f"\nSwap {value0} {token0} for {value1} {token1}"
+        message += f"\nSwap: {value0} {token0} \U000027A1 {value1} {token1}"
         send_message(message)
         return data_df.iloc[0]["hash"]
 
